@@ -126,7 +126,7 @@ def venues():
   # TODO: replace with real venues data.
   #       num_upcoming_shows should be aggregated based on number of upcoming shows per venue.
 
-  query_venues = Show.query.join(Venue).with_entities(Venue.city, Venue.state, Venue.id, Venue.name).group_by(Venue.city, Venue.state, Venue.name, Venue.id).order_by(Venue.state)
+  query_venues = Show.query.join(Venue).with_entities(Venue.city, Venue.state, Venue.id, Venue.name).group_by(Venue.id).order_by(Venue.state)
 
   areas = []
   city_state = ''
