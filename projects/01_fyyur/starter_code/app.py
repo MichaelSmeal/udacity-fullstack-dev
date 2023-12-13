@@ -33,40 +33,40 @@ migrate = Migrate(app, db)
 #----------------------------------------------------------------------------#
 
 class Venue(db.Model):
-    __tablename__ = 'Venue'
+  __tablename__ = 'Venue'
 
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    city = db.Column(db.String(120))
-    state = db.Column(db.String(120))
-    address = db.Column(db.String(120))
-    phone = db.Column(db.String(120))
-    genres = db.Column(db.String)
-    image_link = db.Column(db.String(500))
-    website_link = db.Column(db.String(120))
-    facebook_link = db.Column(db.String(120))
-    seeking_talent = db.Column(db.Boolean, default=False)
-    seeking_description = db.Column(db.String)
-    shows = db.relationship('Show', backref='shows', lazy=True)
+  id = db.Column(db.Integer, primary_key=True)
+  name = db.Column(db.String)
+  city = db.Column(db.String(120))
+  state = db.Column(db.String(120))
+  address = db.Column(db.String(120))
+  phone = db.Column(db.String(120))
+  genres = db.Column(db.String)
+  image_link = db.Column(db.String(500))
+  website_link = db.Column(db.String(120))
+  facebook_link = db.Column(db.String(120))
+  seeking_talent = db.Column(db.Boolean, default=False)
+  seeking_description = db.Column(db.String)
+  shows = db.relationship('Show', backref='shows', lazy=True)
 
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
+  # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 class Artist(db.Model):
-    __tablename__ = 'Artist'
+  __tablename__ = 'Artist'
 
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    city = db.Column(db.String(120))
-    state = db.Column(db.String(120))
-    phone = db.Column(db.String(120))
-    genres = db.Column(db.String(120))
-    image_link = db.Column(db.String(500))
-    facebook_link = db.Column(db.String(120))
-    website_link = db.Column(db.String(120))
-    seeking_venue = db.Column(db.Boolean, default=False)
-    seeking_description = db.Column(db.String(120))
+  id = db.Column(db.Integer, primary_key=True)
+  name = db.Column(db.String)
+  city = db.Column(db.String(120))
+  state = db.Column(db.String(120))
+  phone = db.Column(db.String(120))
+  genres = db.Column(db.String(120))
+  image_link = db.Column(db.String(500))
+  facebook_link = db.Column(db.String(120))
+  website_link = db.Column(db.String(120))
+  seeking_venue = db.Column(db.Boolean, default=False)
+  seeking_description = db.Column(db.String(120))
 
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
+  # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
 
@@ -126,34 +126,54 @@ def venues():
   # TODO: replace with real venues data.
   #       num_upcoming_shows should be aggregated based on number of upcoming shows per venue.
 
-  query_venues = Show.query.join(Venue).with_entities(Venue.city, Venue.state, Venue.id, Venue.name).group_by(Venue.id).order_by(Venue.state)
+  show_venue_join = Venue.query.join(Show).order_by(Venue.state)
 
   areas = []
-  city_state = ''
-
   venues = {}
-  
-  for city, state, id, name in query_venues:
 
-    city_state = (city, state)
+  # loop through the show_venue_join query
+  for show_venue in show_venue_join:
+    id = show_venue.id
+    name = show_venue.name
+    city = show_venue.city
+    state = show_venue.state
+    shows = show_venue.shows
+    
+    show_count = 0
 
-    if city_state not in venues:
-      venues[city_state] = []
+    place = city + ' ' + state
 
-    venues[city_state].append({
+    #  if place is not in venues, add to it as a list
+    if place not in venues:
+      venues[place] = []
+
+    # loop through the shows to get the start time
+    for show in shows:
+
+      #  if show start_time is less than today, increate the show_count of upcoming shows
+      if show.start_time.date() < date.today():
+        show_count += 1
+
+    # add each venue to its accounting place
+    venues[place].append({
       'id': id,
       'name': name,
+      'num_upcoming_shows': show_count
     })
 
-  for city, state in list(venues):
+  # loop through the venues and grab each locations based on the place key
+  for loc in list(venues):
 
+    # split the string place key so we can access each element
+    ven_split = loc.split()
+
+    # add each city, state and its accompanying venues id, names, and num upcoming shows count
     areas.append({
-      'city': city,
-      'state': state,
-      'venues': venues[(city, state)]
+      'city': ven_split[0],
+      'state': ven_split[1],
+      'venues': venues[loc]
     })
-  
-  # finally:
+
   return render_template('pages/venues.html', areas=areas)
 
 @app.route('/venues/search', methods=['POST'])
