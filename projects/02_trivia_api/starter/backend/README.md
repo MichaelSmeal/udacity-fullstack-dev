@@ -1,111 +1,170 @@
 # Backend - Full Stack Trivia API 
 
-### Installing Dependencies for the Backend
+## Introduction
 
-1. **Python 3.7** - Follow instructions to install the latest version of python for your platform in the [python docs](https://docs.python.org/3/using/unix.html#getting-and-installing-the-latest-version-of-python)
+- Full stack trivia api (backend) documentation
+- List out getting started notes, errors, and endpoints
 
+## Getting Started
 
-2. **Virtual Enviornment** - We recommend working within a virtual environment whenever using Python for projects. This keeps your dependencies for each project separate and organaized. Instructions for setting up a virual enviornment for your platform can be found in the [python docs](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/)
+- Below is a list of items needed to properly execute the api
 
+### Installing dependencies
 
-3. **PIP Dependencies** - Once you have your virtual environment setup and running, install dependencies by naviging to the `/backend` directory and running:
-```bash
+Install all of the required pacakages
+
+- Navigate to the `/backend` folder directory
+- Run install script
+
+```shell
 pip install -r requirements.txt
 ```
-This will install all of the required packages we selected within the `requirements.txt` file.
 
+### Starting the server
 
-4. **Key Dependencies**
- - [Flask](http://flask.pocoo.org/)  is a lightweight backend microservices framework. Flask is required to handle requests and responses.
+Start the server
 
- - [SQLAlchemy](https://www.sqlalchemy.org/) is the Python SQL toolkit and ORM we'll use handle the lightweight sqlite database. You'll primarily work in app.py and can reference models.py. 
+- Navigate to the `/flaskr` folder directory
+- Run export script
+- Run flask run script with reload to watch changes made to the file
 
- - [Flask-CORS](https://flask-cors.readthedocs.io/en/latest/#) is the extension we'll use to handle cross origin requests from our frontend server. 
-
-### Database Setup
-With Postgres running, restore a database using the trivia.psql file provided. From the backend folder in terminal run:
-```bash
-psql trivia < trivia.psql
-```
-
-### Running the server
-
-From within the `./src` directory first ensure you are working using your created virtual environment.
-
-To run the server, execute:
-
-```bash
+```shell
+export FLASK_APP
 flask run --reload
 ```
 
-The `--reload` flag will detect file changes and restart the server automatically.
+## Errors
 
-## ToDo Tasks
-These are the files you'd want to edit in the backend:
+Errors are handled as json object messages
 
-1. *./backend/flaskr/`__init__.py`*
-2. *./backend/test_flaskr.py*
+The api will return the following errors:
 
+- 400: Return a bad request message
+- 404: Return a not found message
+- 415: Return an unsupported media type message
+- 422: Return an unprocessable message
 
-One note before you delve into your tasks: for each endpoint, you are expected to define the endpoint and response data. The frontend will be a plentiful resource because it is set up to expect certain endpoints and response data formats already. You should feel free to specify endpoints in your own way; if you do so, make sure to update the frontend or you will get some unexpected behavior. 
+## Resource Endpoint Library
 
-1. Use Flask-CORS to enable cross-domain requests and set response headers. 
+### GET /categories
 
+#### General
 
-2. Create an endpoint to handle GET requests for questions, including pagination (every 10 questions). This endpoint should return a list of questions, number of total questions, current category, categories. 
+- Return a list of all categories
+- Categories must be returned as a dictionary with the id being the key, and the type being the value
 
+#### Return sample
 
-3. Create an endpoint to handle GET requests for all available categories. 
-
-
-4. Create an endpoint to DELETE question using a question ID. 
-
-
-5. Create an endpoint to POST a new question, which will require the question and answer text, category, and difficulty score. 
-
-
-6. Create a POST endpoint to get questions based on category. 
-
-
-7. Create a POST endpoint to get questions based on a search term. It should return any questions for whom the search term is a substring of the question. 
-
-
-8. Create a POST endpoint to get questions to play the quiz. This endpoint should take category and previous question parameters and return a random questions within the given category, if provided, and that is not one of the previous questions. 
-
-
-9. Create error handlers for all expected errors including 400, 404, 422 and 500. 
-
-
-
-## Review Comment to the Students
-```
-This README is missing documentation of your endpoints. Below is an example for your endpoint to get all categories. Please use it as a reference for creating your documentation and resubmit your code. 
-
-Endpoints
-GET '/api/v1.0/categories'
-GET ...
-POST ...
-DELETE ...
-
-GET '/api/v1.0/categories'
-- Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
-- Request Arguments: None
-- Returns: An object with a single key, categories, that contains a object of id: category_string key:value pairs. 
-{'1' : "Science",
-'2' : "Art",
-'3' : "Geography",
-'4' : "History",
-'5' : "Entertainment",
-'6' : "Sports"}
-
+```shell
+{
+  "1": "Science",
+  "2": "Art",
+  "3": "Geography",
+  "4": "History",
+  "5": "Entertainment",
+  "6": "Sports"
+}
 ```
 
+### GET /questions
 
-## Testing
-To run the tests, run
+#### General
+
+- Returns a list of questions, total quesstions, list of categories
+- Results will be paginated in amounts of 10
+- Results must be formated to display properly
+
+#### Return sample
+
+```shell
+"questions": [
+  {
+    "id": 3,
+    "question": "What color is the sky?",
+    "answer": "Blue",
+    "category": 3,
+    "difficulty": 3
+  }
+]
 ```
-dropdb trivia_test
-createdb trivia_test
-psql trivia_test < trivia.psql
-python test_flaskr.py
+
+### DELETE /questions/{id}
+
+#### General
+
+- Deletes the question with the id that is passed in via the url
+- No data will be returned
+
+### POST / questions
+
+#### General
+
+- When the add form is submitted with all of it"s fields filled out, a question will be successfully submitted
+- No data will be returned
+- The form will clear and the question will be added to the end of the last page
+
+#### Return sample
+
+```shell
+{
+  "success": True,
+  "question": "Question entered",
+  "answer": "Answer entered",
+  "category": 3,
+  "difficulty": 3
+}
+```
+
+### POST /search
+
+#### General
+
+- The phrase or term that is entered via the search bar, will query the db and return all posts that are in relation to that term
+- Will be compared by the question
+- Term insensitive
+- Results must be formated to display properly
+
+#### Return sample
+
+```shell
+{
+  "search_term": "Term/phrase passed in",
+  "questions": List of questions returned based on term,
+  "total_questions": Length of questions
+}
+```
+
+### GET /categories/{id}/questions
+
+#### General
+- Return a list of questions based on the category id passed in
+- Returned category will need to the type based on the id that has been passed through
+- Results must be formated to display properly
+
+#### Return sample
+
+```shell
+{
+  "questions": list of questions,
+  "total_questions": length of questions,
+  "current_category": category type passed in,
+}
+```
+
+### POST /quizzes
+
+#### General
+
+- The will retrieve all quesions
+- Will either be all questions or filtered via the category that has been selected
+- Questions will be randomized
+- The current question displayed will not be one of the previous questions
+- If there is no question, return an empty string to end the quiz
+
+#### Return sample
+
+```shell
+{
+  "question": question or ""
+}
 ```
